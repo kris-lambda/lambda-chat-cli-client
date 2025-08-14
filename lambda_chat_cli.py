@@ -13,7 +13,7 @@ class LambdaChatClient:
 
     def login(self):
         try:
-            response = self.session.post('https://lambda.chat/login', data={
+            response = self.session.post('https://lambda.chat/login/google-password', json={
                 'email': self.email,
                 'password': self.password,
             })
@@ -72,24 +72,21 @@ Usage:
 
 Options:
     --email EMAIL         Email address (or LAMBDA_CHAT_EMAIL environment variable)
-    --password PASSWORD   Password (or LAMBDA_CHAT_PASSWORD environment variable)
     --chat-id CHAT_ID     Chat ID (optional)
 
 If no chat ID is provided, a list of existing chats will be displayed, and you can select one to interact with.
 
 Examples:
-    lambda_chat_cli.py --email user@example.com --password mypassword
+    lambda_chat_cli.py --email user@example.com
     lambda_chat_cli.py --chat-id 1234567890
 
 Environment Variables:
     LAMBDA_CHAT_EMAIL     Email address
-    LAMBDA_CHAT_PASSWORD  Password
 
 Interactive Commands:
     /quit                 Quit the interactive chat session
 ''', formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('--email', help=argparse.SUPPRESS)
-    parser.add_argument('--password', help=argparse.SUPPRESS)
     parser.add_argument('--chat-id', help=argparse.SUPPRESS)
     args = parser.parse_args()
 
@@ -97,9 +94,7 @@ Interactive Commands:
     if not email:
         email = input('Enter your email address: ')
 
-    password = args.password or os.environ.get('LAMBDA_CHAT_PASSWORD')
-    if not password:
-        password = getpass.getpass('Enter your password: ')
+    password = getpass.getpass('Enter your Google password: ')
 
     client = LambdaChatClient(email, password)
 
