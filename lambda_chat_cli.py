@@ -36,7 +36,12 @@ class LambdaChatClient:
         try:
             response = self.session.get('https://lambda.chat/chats')
             response.raise_for_status()
-            return response.json()
+            try:
+                return response.json()
+            except ValueError as e:
+                print(f'Failed to parse JSON response: {e}')
+                print(f'Response: {response.text}')
+                return []
         except requests.exceptions.RequestException as e:
             print(f'Failed to retrieve chats: {e}')
             return []
@@ -45,7 +50,12 @@ class LambdaChatClient:
         try:
             response = self.session.get(f'https://lambda.chat/chats/{chat_id}/messages')
             response.raise_for_status()
-            return response.json()
+            try:
+                return response.json()
+            except ValueError as e:
+                print(f'Failed to parse JSON response: {e}')
+                print(f'Response: {response.text}')
+                return []
         except requests.exceptions.RequestException as e:
             print(f'Failed to retrieve messages: {e}')
             return []
@@ -56,7 +66,11 @@ class LambdaChatClient:
                 'name': name,
             })
             response.raise_for_status()
-            return response.json()['id']
+            try:
+                return response.json()['id']
+            except (ValueError, KeyError) as e:
+                print(f'Failed to parse JSON response: {e}')
+                print(f'Response: {response.text}')
         except requests.exceptions.RequestException as e:
             print(f'Failed to create chat: {e}')
 
@@ -110,6 +124,9 @@ Interactive Commands:
                 if choice == 1:
                     name = input('Enter a name for the new chat: ')
                     chat_id = client.create_chat(name)
+                    if chat_id is None:
+                        print('Failed to create chat. Please try again.')
+                        continue
                     break
                 elif 2 <= choice <= len(chats) + 1:
                     chat_id = chats[choice - 2]['id']
